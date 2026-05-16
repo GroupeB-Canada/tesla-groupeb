@@ -220,7 +220,7 @@ export interface TripStats {
 export function calcTripStats(
   startOdo: number, startBattery: number, startTime: Date,
   endOdo: number,   endBattery: number,   endTime: Date,
-  batteryKwh = 82   // Model Y Long Range
+  batteryKwh = 82   // Model 3 Long Range
 ): TripStats {
   const distanceKm   = endOdo - startOdo;
   const energyKwh    = ((startBattery - endBattery) / 100) * batteryKwh;

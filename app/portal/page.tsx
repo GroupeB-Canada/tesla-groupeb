@@ -141,7 +141,7 @@ export default function PortalPage() {
       });
 
       pin.current = L.marker([state.lat || 46.05, state.lng || -73.71], { icon })
-        .bindPopup('<b>Tesla Model Y</b><br>Votre véhicule')
+        .bindPopup('<b>Tesla Model 3</b><br>Votre véhicule')
         .addTo(map);
       map.setView([state.lat || 46.05, state.lng || -73.71], 15);
       leafMap.current = map;
@@ -181,7 +181,7 @@ export default function PortalPage() {
 
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '80px 24px 0' }}>
         <div style={{ paddingTop: '32px', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '6px' }}>Ma Tesla Model Y</h1>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '6px' }}>Ma Tesla Model 3</h1>
           <p style={{ fontSize: '14px', color: 'var(--muted)' }}>Contrôlez votre véhicule pendant votre location</p>
         </div>
 

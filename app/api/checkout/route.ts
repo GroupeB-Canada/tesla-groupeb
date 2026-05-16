@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         price_data: {
           currency: 'cad',
           product_data: {
-            name: `Location Tesla Model Y — ${days} jour${days !== 1 ? 's' : ''}`,
+            name: `Location Tesla Model 3 — ${days} jour${days !== 1 ? 's' : ''}`,
             description: `${startDate} → ${endDate} · tesla.groupeb.ca`,
             images: ['https://groupeb-storage.s3.ca-central-1.amazonaws.com/tesla-model-y.jpg'],
           },

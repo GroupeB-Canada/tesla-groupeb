@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Tesla GroupeB | Location premium & contrôle autonome',
-  description: 'Louez une Tesla Model Y avec contrôle 100% autonome — déverrouillage automatique, climatisation à distance, suivi en temps réel. Rawdon, QC.',
+  description: 'Louez une Tesla Model 3 avec contrôle 100% autonome — déverrouillage automatique, climatisation à distance, suivi en temps réel. Rawdon, QC.',
   openGraph: {
     title: 'Tesla GroupeB — Location autonome',
     description: 'L\'expérience Tesla la plus avancée au Québec.',

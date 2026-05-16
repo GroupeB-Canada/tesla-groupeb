@@ -10,7 +10,7 @@ export default function SuccessPage() {
         </div>
         <h1 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>Réservation confirmée !</h1>
         <p style={{ color: 'var(--muted)', marginBottom: '32px', lineHeight: 1.7 }}>
-          Votre Tesla Model Y est réservée. Un courriel de confirmation a été envoyé avec tous les détails.
+          Votre Tesla Model 3 est réservée. Un courriel de confirmation a été envoyé avec tous les détails.
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px', textAlign: 'left' }}>

@@ -133,7 +133,7 @@ export default function BookPage() {
 
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '80px 24px 0' }}>
         <div style={{ paddingTop: '32px', marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px' }}>Réserver la Tesla Model Y</h1>
+          <h1 style={{ fontSize: '32px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px' }}>Réserver la Tesla Model 3</h1>
           <p style={{ color: 'var(--muted)', fontSize: '15px' }}>Location autonome · Déverrouillage par téléphone · Rawdon, QC</p>
         </div>
 

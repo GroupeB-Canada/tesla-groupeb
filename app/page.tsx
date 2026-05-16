@@ -45,7 +45,7 @@ export default function HomePage() {
         </h1>
 
         <p style={{ fontSize: '18px', color: 'var(--muted)', maxWidth: '580px', margin: '0 auto 40px', lineHeight: 1.7 }}>
-          Réservez, payez, récupérez et retournez votre Tesla Model Y sans contact humain. Contrôle complet depuis votre téléphone.
+          Réservez, payez, récupérez et retournez votre Tesla Model 3 sans contact humain. Contrôle complet depuis votre téléphone.
         </p>
 
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '60px' }}>
