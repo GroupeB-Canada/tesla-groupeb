@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
         client_secret: CLIENT_SECRET,
         code,
         redirect_uri: REDIRECT_URI,
-        audience: process.env.TESLA_AUDIENCE!,
       }),
     });
 
