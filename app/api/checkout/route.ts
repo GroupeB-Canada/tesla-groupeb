@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
     const {
       startDate, endDate, days,
       firstName, lastName, email, phone,
+      licenseNumber,
       promoCode, extras, subtotal, discount, total,
     } = body;
 
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         startDate, endDate, days: String(days),
         firstName, lastName, email, phone: phone ?? '',
+        licenseNumber: licenseNumber ?? '',
         promoCode: promoCode ?? '',
         discount: String(discount ?? 0),
       },

@@ -229,7 +229,7 @@ export default function HomePage() {
             </div>
 
             <div style={{ fontWeight: 700, fontSize: '18px', marginBottom: '4px' }}>Tesla Model 3 Dual Motor</div>
-            <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '20px' }}>VIN · 5YJ3E1EB1JF106930 · Rawdon, QC</div>
+            <div style={{ fontSize: '13px', color: 'var(--muted)', marginBottom: '20px' }}>Rawdon, QC · 2018</div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               {[

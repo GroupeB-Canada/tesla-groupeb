@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
-    const { startDate, endDate, days, firstName, lastName, email, phone, promoCode } = session.metadata ?? {};
+    const { startDate, endDate, days, firstName, lastName, email, phone, licenseNumber, promoCode } = session.metadata ?? {};
 
     const bookingId = session.id;
     const now = new Date().toISOString();
@@ -36,8 +36,10 @@ export async function POST(req: NextRequest) {
           firstName:   { S: firstName ?? '' },
           lastName:    { S: lastName ?? '' },
           email:       { S: email ?? '' },
-          phone:       { S: phone ?? '' },
-          promoCode:   { S: promoCode ?? '' },
+          phone:         { S: phone ?? '' },
+          licenseNumber: { S: licenseNumber ?? '' },
+          promoCode:     { S: promoCode ?? '' },
+          licenseStatus: { S: 'pending' },
           amountTotal: { N: String((session.amount_total ?? 0) / 100) },
           currency:    { S: session.currency ?? 'cad' },
           status:      { S: 'confirmed' },

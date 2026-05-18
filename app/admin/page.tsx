@@ -7,8 +7,170 @@ import {
   ChevronLeft, CheckCircle, XCircle, Loader2,
   Shield, Key, Car, Battery, Thermometer, BellRing,
   ToggleLeft, ToggleRight, Settings, AlertTriangle,
-  Activity
+  Activity, ClipboardList, ExternalLink, Copy,
 } from 'lucide-react';
+
+// ─── Bookings Panel ───────────────────────────────────────────────────────────
+interface Booking {
+  bookingId: string; startDate: string; endDate: string; days: string;
+  firstName: string; lastName: string; email: string; phone: string;
+  licenseNumber: string; licenseStatus: string;
+  promoCode: string; amountTotal: string; status: string; createdAt: string;
+}
+
+function BookingsPanel() {
+  const [bookings, setBookings]   = useState<Booking[]>([]);
+  const [loading,  setLoading]    = useState(true);
+  const [updating, setUpdating]   = useState<string | null>(null);
+  const [copied,   setCopied]     = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const res  = await fetch('/api/admin/bookings', {
+      headers: { 'x-admin-token': process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? '' },
+    });
+    const json = await res.json();
+    if (json.ok) setBookings(json.bookings);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const updateStatus = async (bookingId: string, licenseStatus: string) => {
+    setUpdating(bookingId);
+    await fetch('/api/admin/update-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': process.env.NEXT_PUBLIC_ADMIN_TOKEN ?? '',
+      },
+      body: JSON.stringify({ bookingId, licenseStatus }),
+    });
+    await load();
+    setUpdating(null);
+  };
+
+  const copyAndOpenSAAQ = (licenseNum: string) => {
+    navigator.clipboard.writeText(licenseNum).catch(() => {});
+    setCopied(licenseNum);
+    setTimeout(() => setCopied(null), 2000);
+    window.open('https://saaqclic-entreprises.saaq.gouv.qc.ca/saaqstorefront/fr/login', '_blank');
+  };
+
+  const statusBadge = (s: string) => {
+    const map: Record<string, { label: string; color: string; bg: string }> = {
+      pending:  { label: 'En attente',   color: 'var(--amber)',  bg: 'rgba(245,158,11,0.12)'   },
+      approved: { label: '✓ Approuvé',   color: 'var(--green)',  bg: 'rgba(34,197,94,0.12)'    },
+      rejected: { label: '✗ Refusé',     color: 'var(--red)',    bg: 'rgba(227,25,55,0.12)'    },
+    };
+    const { label, color, bg } = map[s] ?? map.pending;
+    return (
+      <span style={{ fontSize: '11px', fontWeight: 600, color, background: bg, padding: '3px 10px', borderRadius: '999px', border: `1px solid ${color}40` }}>
+        {label}
+      </span>
+    );
+  };
+
+  if (loading) return <div style={{ color: 'var(--muted)', padding: '32px', textAlign: 'center' }}>Chargement…</div>;
+  if (!bookings.length) return <div style={{ color: 'var(--muted)', padding: '32px', textAlign: 'center' }}>Aucune réservation pour l'instant.</div>;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {bookings.map(b => (
+        <div key={b.bookingId} className="card" style={{
+          borderLeft: `3px solid ${b.licenseStatus === 'approved' ? 'var(--green)' : b.licenseStatus === 'rejected' ? 'var(--red)' : 'var(--amber)'}`,
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            {/* Client */}
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>CLIENT</div>
+              <div style={{ fontWeight: 700 }}>{b.firstName} {b.lastName}</div>
+              <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{b.email}</div>
+              <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{b.phone}</div>
+            </div>
+            {/* Dates */}
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>LOCATION</div>
+              <div style={{ fontWeight: 700 }}>{b.startDate} → {b.endDate}</div>
+              <div style={{ fontSize: '13px', color: 'var(--muted)' }}>{b.days} jour{Number(b.days) > 1 ? 's' : ''}</div>
+              <div style={{ fontSize: '14px', color: 'var(--green)', fontWeight: 600 }}>{Number(b.amountTotal).toFixed(2)} $</div>
+            </div>
+            {/* Statut */}
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>STATUT PERMIS</div>
+              <div style={{ marginBottom: '8px' }}>{statusBadge(b.licenseStatus)}</div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)' }}>
+                Réservation: {new Date(b.createdAt).toLocaleDateString('fr-CA')}
+              </div>
+            </div>
+          </div>
+
+          {/* Permis de conduire */}
+          <div style={{ background: 'var(--surface2)', borderRadius: '10px', padding: '12px 16px', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+            <div>
+              <div style={{ fontSize: '11px', color: 'var(--muted)', marginBottom: '2px' }}>NUMÉRO DE PERMIS SAAQ</div>
+              <div style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 700, letterSpacing: '2px', color: b.licenseNumber ? 'var(--text)' : 'var(--muted)' }}>
+                {b.licenseNumber || 'Non fourni'}
+              </div>
+            </div>
+            {b.licenseNumber && (
+              <button
+                onClick={() => copyAndOpenSAAQ(b.licenseNumber)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: copied === b.licenseNumber ? 'rgba(34,197,94,0.15)' : 'var(--red)',
+                  color: 'white', border: 'none', padding: '10px 16px',
+                  borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {copied === b.licenseNumber ? (
+                  <><CheckCircle size={14} /> Copié! Vérifiez sur SAAQ</>
+                ) : (
+                  <><ExternalLink size={14} /> Vérifier sur SAAQ</>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* Actions approbation */}
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <span style={{ fontSize: '12px', color: 'var(--muted)', marginRight: '4px' }}>Après vérification :</span>
+            <button
+              onClick={() => updateStatus(b.bookingId, 'approved')}
+              disabled={b.licenseStatus === 'approved' || updating === b.bookingId}
+              style={{
+                background: b.licenseStatus === 'approved' ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.1)',
+                border: `1px solid ${b.licenseStatus === 'approved' ? 'var(--green)' : 'rgba(34,197,94,0.3)'}`,
+                color: 'var(--green)', padding: '6px 16px', borderRadius: '8px',
+                cursor: b.licenseStatus === 'approved' ? 'default' : 'pointer',
+                fontSize: '13px', fontWeight: 600,
+              }}
+            >
+              {updating === b.bookingId ? '…' : '✓ Approuver'}
+            </button>
+            <button
+              onClick={() => updateStatus(b.bookingId, 'rejected')}
+              disabled={b.licenseStatus === 'rejected' || updating === b.bookingId}
+              style={{
+                background: b.licenseStatus === 'rejected' ? 'rgba(227,25,55,0.2)' : 'rgba(227,25,55,0.08)',
+                border: `1px solid ${b.licenseStatus === 'rejected' ? 'var(--red)' : 'rgba(227,25,55,0.2)'}`,
+                color: 'var(--red)', padding: '6px 16px', borderRadius: '8px',
+                cursor: b.licenseStatus === 'rejected' ? 'default' : 'pointer',
+                fontSize: '13px', fontWeight: 600,
+              }}
+            >
+              {updating === b.bookingId ? '…' : '✗ Refuser'}
+            </button>
+            <button onClick={load} style={{ marginLeft: 'auto', background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '12px' }}>
+              ↺ Rafraîchir
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface CmdResult { ok: boolean; message: string; }
@@ -125,6 +287,7 @@ function CmdBtn({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const [unlocked, setUnlocked] = useState(false);
+  const [activeTab, setActiveTab] = useState<'vehicle' | 'bookings'>('bookings');
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [vehicleState, setVehicleState] = useState<any>(null);
   const [tempTarget, setTempTarget] = useState(20);
@@ -197,12 +360,60 @@ export default function AdminPage() {
       </nav>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 0' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px' }}>Contrôle véhicule</h1>
-        {v && (
+        <h1 style={{ fontSize: '28px', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '8px' }}>Panneau Admin</h1>
+
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '28px', background: 'var(--surface)', borderRadius: '12px', padding: '6px', width: 'fit-content' }}>
+          {[
+            { id: 'bookings', label: '📋 Réservations & Permis', icon: ClipboardList },
+            { id: 'vehicle',  label: '🚗 Contrôle véhicule',     icon: Car },
+          ].map(({ id, label }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id as any)}
+              style={{
+                padding: '8px 20px', borderRadius: '8px', border: 'none',
+                background: activeTab === id ? 'var(--red)' : 'transparent',
+                color: activeTab === id ? 'white' : 'var(--muted)',
+                fontWeight: 600, fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Bookings tab */}
+        {activeTab === 'bookings' && (
+          <section style={{ marginBottom: '32px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 700 }}>Réservations</h2>
+                <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '4px' }}>
+                  Vérifiez chaque permis sur SAAQ avant d'approuver. Le bouton copie le numéro et ouvre SAAQclic Entreprises.
+                </p>
+              </div>
+              <a
+                href="https://saaqclic-entreprises.saaq.gouv.qc.ca/saaqstorefront/fr/login"
+                target="_blank"
+                rel="noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'white', padding: '8px 14px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 500 }}
+              >
+                <ExternalLink size={13} /> SAAQclic Entreprises
+              </a>
+            </div>
+            <BookingsPanel />
+          </section>
+        )}
+
+        {/* Vehicle control tab */}
+        {activeTab === 'vehicle' && (
+          <>
+          {v && (
           <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '32px' }}>
             {v.battery}% · {v.rangeKm} km · {v.locked ? '🔒 Verrouillé' : '🔓 Déverrouillé'} · {v.online ? '🟢 En ligne' : '🔴 Hors ligne'}
           </p>
-        )}
+          )}
 
         {/* ── SECTION: Accès & Alertes ───────────────────────────────── */}
         <section style={{ marginBottom: '32px' }}>
@@ -373,6 +584,8 @@ export default function AdminPage() {
             <CmdBtn icon={Settings}  label="Màj logiciel"     sublabel="Planifier"     command="scheduleUpdate" color="amber" onRun={runCmd} />
           </div>
         </section>
+        </>
+        )}
       </div>
     </div>
   );

@@ -40,6 +40,7 @@ export default function BookPage() {
   const [lastName,  setLastName]  = useState('');
   const [email,     setEmail]     = useState('');
   const [phone,     setPhone]     = useState('');
+  const [licenseNumber, setLicenseNumber] = useState('');
   const [promo,     setPromo]     = useState('');
   const [promoResult, setPromoResult] = useState<{ discount: number; label: string } | null>(null);
   const [promoError,  setPromoError]  = useState('');
@@ -86,6 +87,10 @@ export default function BookPage() {
       setError('Veuillez remplir tous les champs obligatoires.');
       return;
     }
+    if (!licenseNumber.trim()) {
+      setError('Le numéro de permis de conduire est obligatoire.');
+      return;
+    }
     if (days < 1) {
       setError('Sélectionnez au moins 1 jour de location.');
       return;
@@ -99,6 +104,7 @@ export default function BookPage() {
         body: JSON.stringify({
           startDate, endDate, days,
           firstName, lastName, email, phone,
+          licenseNumber: licenseNumber.trim().toUpperCase(),
           promoCode: promo.toUpperCase() || undefined,
           extras,
           subtotal, discount, total,
@@ -183,6 +189,42 @@ export default function BookPage() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Permis de conduire */}
+            <div className="card" style={{ border: '1px solid rgba(227,25,55,0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <h2 style={{ fontSize: '15px', fontWeight: 600 }}>Permis de conduire <span style={{ color: 'var(--red)' }}>*</span></h2>
+              </div>
+              <p style={{ fontSize: '12px', color: 'var(--muted)', marginBottom: '12px', lineHeight: 1.6 }}>
+                Requis pour vérifier la validité de votre permis auprès de la SAAQ avant la remise du véhicule. Votre permis doit être de <strong style={{ color: 'var(--text)' }}>classe 5</strong> minimum.
+              </p>
+              <input
+                type="text"
+                value={licenseNumber}
+                onChange={e => setLicenseNumber(e.target.value.toUpperCase())}
+                placeholder="Ex: A123456789876"
+                maxLength={13}
+                required
+                style={{
+                  width: '100%', padding: '12px', borderRadius: '10px',
+                  background: 'var(--surface2)',
+                  border: licenseNumber.length > 0 && licenseNumber.length !== 13
+                    ? '1px solid var(--amber)'
+                    : '1px solid var(--border)',
+                  color: 'white', fontSize: '15px', outline: 'none',
+                  letterSpacing: '2px', fontFamily: 'monospace',
+                }}
+              />
+              {licenseNumber.length > 0 && licenseNumber.length !== 13 && (
+                <p style={{ fontSize: '12px', color: 'var(--amber)', marginTop: '6px' }}>
+                  Le numéro doit contenir exactement 13 caractères (sans tirets ni espaces)
+                </p>
+              )}
+              {licenseNumber.length === 13 && (
+                <p style={{ fontSize: '12px', color: 'var(--green)', marginTop: '6px' }}>✓ Format valide</p>
+              )}
             </div>
 
             {/* Extras */}
